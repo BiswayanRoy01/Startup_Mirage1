@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Mirage - Simulation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #111827;
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glow {
+            box-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+        }
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1F2937;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 360px;
+            max-height: 500px;
+            background: #1F2937;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .chatbot-container.open {
+            display: flex;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .chatbot-header {
+            background: #14B8A6;
+            padding: 12px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chatbot-messages {
+            flex: 1;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #1F2937;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease;
+        }
+        .message.ai {
+            background: #4B5563;
+            color: white;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        .message.user {
+            background: #14B8A6;
+            color: white;
+            margin-right: auto;
+        }
+        .message.ai img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .typing-indicator {
+            display: none;
+            font-size: 12px;
+            color: #9CA3AF;
+            padding: 8px 12px;
+        }
+        .typing-indicator.active {
+            display: block;
+        }
+        .chatbot-input {
+            display: flex;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background: #374151;
+        }
+        .chatbot-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px;
+            color: white;
+            outline: none;
+        }
+        .chatbot-input button {
+            background: #14B8A6;
+            border: none;
+            padding: 12px 16px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .chatbot-input button:hover {
+            background: #0D9488;
+        }
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #14B8A6;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .chatbot-toggle:hover {
+            background: #0D9488;
+            transform: scale(1.1);
+        }
+        .progress-bar {
+            height: 8px;
+            background: #4B5563;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #14B8A6;
+            width: 0;
+            transition: width 2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-white font-sans">
+    <!-- Sidebar -->
+    <div class="fixed top-0 left-0 h-full w-64 bg-gray-800 p-4">
+        <h1 class="text-2xl font-bold text-teal-400 mb-6">Startup Mirage</h1>
+        <nav class="space-y-2">
+            <a href="#dashboard" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Dashboard</a>
+            <a href="#create-startup" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Create Startup</a>
+            <a href="#choose-market" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Choose Market</a>
+            <a href="#pricing-strategy" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Pricing Strategy</a>
+            <a href="#competitor-analysis" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Competitor Analysis</a>
+            <a href="#reports" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-teal-400">Reports & Feedback</a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-auto p-6">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Dashboard</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <h3 class="text-xl text-teal-400 mb-2">Startup: InnovateTech</h3>
+                <p class="text-sm mb-4">Revolutionizing EdTech with AI-driven learning</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="tooltip" data-tooltip="Product-Market Fit Score">
+                        <h4 class="text-sm">Product-Market Fit</h4>
+                        <div class="progress-bar"><div class="progress-bar-fill bg-teal-500" style="width: 82%;"></div></div>
+                    </div>
+                    <div class="tooltip" data-tooltip="Available Cash Flow">
+                        <h4 class="text-sm">Cash Flow</h4>
+                        <div class="progress-bar"><div class="progress-bar-fill bg-green-500" style="width: 65%;"></div></div>
+                    </div>
+                    <div class="tooltip" data-tooltip="Risk Level Assessment">
+                        <h4 class="text-sm">Risk Level</h4>
+                        <div class="progress-bar"><div class="progress-bar-fill bg-red-500" style="width: 30%;"></div></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-gray-800 p-4 rounded-lg text-center animate-pulse-slow tooltip" data-tooltip="Total Profit">
+                        <h4 class="text-sm">Profit</h4>
+                        <p class="text-2xl font-bold">$12,450</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg text-center animate-pulse-slow tooltip" data-tooltip="Monthly Revenue">
+                        <h4 class="text-sm">Revenue</h4>
+                        <p class="text-2xl font-bold">$18,700</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg text-center animate-pulse-slow tooltip" data-tooltip="Active Users">
+                        <h4 class="text-sm">Users</h4>
+                        <p class="text-2xl font-bold">1,230</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg text-center animate-pulse-slow tooltip" data-tooltip="Monthly Burn Rate">
+                        <h4 class="text-sm">Burn Rate</h4>
+                        <p class="text-2xl font-bold">$6,250</p>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="text-sm text-teal-400">Notification Feed</h4>
+                    <div class="space-y-2">
+                        <p class="bg-gray-700 p-2 rounded text-sm">Market News: EdTech sector grows 10% QoQ</p>
+                        <p class="bg-gray-700 p-2 rounded text-sm">AI Tip: Increase marketing spend for user growth</p>
+                        <p class="bg-gray-700 p-2 rounded text-sm">Competitor Move: TechTrend launches new feature</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Startup Section -->
+        <section id="create-startup" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Create Your Startup</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <button class="mb-4 bg-teal-500 hover:bg-teal-600 p-2 rounded-lg tooltip" data-tooltip="Generate startup ideas using AI">AI Idea Generator</button>
+                <form>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Enter a unique name for your startup">Startup Name</label>
+                        <input type="text" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500" placeholder="Enter startup name">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Select your industry">Sector</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>HealthTech</option>
+                            <option>EdTech</option>
+                            <option>FinTech</option>
+                            <option>Retail</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Define your target audience">Target Audience</label>
+                        <input type="text" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500" placeholder="e.g., Students, Professionals">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Choose your revenue model">Business Model</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>Freemium</option>
+                            <option>Subscription</option>
+                            <option>One-time Purchase</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 p-2 rounded-lg tooltip" data-tooltip="Launch your startup">Create Startup</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Choose Market Section -->
+        <section id="choose-market" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Choose Market</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <button class="mb-4 bg-teal-500 hover:bg-teal-600 p-2 rounded-lg tooltip" data-tooltip="Get AI suggestions for market fit">AI Market Fit Advisor</button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Select market region">Region</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>North America</option>
+                            <option>Europe</option>
+                            <option>Asia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Select market segment">Segment</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>K-12 Education</option>
+                            <option>Higher Education</option>
+                            <option>Corporate Training</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Select market size">Size</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>Small</option>
+                            <option>Medium</option>
+                            <option>Large</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Select market saturation level">Saturation</label>
+                        <select class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-teal-500">
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="text-sm text-teal-400 mb-2">Competitor Landscape</h4>
+                    <canvas id="competitorChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Strategy Section -->
+        <section id="pricing-strategy" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Pricing Strategy</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Set base price">Base Price</label>
+                        <input type="range" min="10" max="1000" value="500" class="w-full" oninput="this.nextElementSibling.value = this.value">
+                        <output class="text-sm">500</output>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Set premium tier price">Premium Tier</label>
+                        <input type="range" min="50" max="5000" value="2000" class="w-full" oninput="this.nextElementSibling.value = this.value">
+                        <output class="text-sm">2000</output>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 tooltip" data-tooltip="Set enterprise tier price">Enterprise Tier</label>
+                        <input type="range" min="1000" max="10000" value="5000" class="w-full" oninput="this.nextElementSibling.value = this.value">
+                        <output class="text-sm">5000</output>
+                    </div>
+                </div>
+                <button class="w-full bg-teal-500 hover:bg-teal-600 p-2 rounded-lg mb-4 tooltip" data-tooltip="Simulate pricing outcomes">Simulate Outcome</button>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="text-sm text-teal-400 mb-2">AI Pricing Tips</h4>
+                    <p class="text-sm">Consider lowering base price to $450 to attract more users.</p>
+                    <p class="text-sm">Premium tier at $2000 aligns with market trends.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulation Room Section -->
+        <section id="simulation-room" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Simulation Room</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h4 class="text-sm text-teal-400 mb-2">Market Events</h4>
+                        <p class="bg-gray-700 p-2 rounded text-sm">New regulation impacts EdTech pricing</p>
+                        <p class="bg-gray-700 p-2 rounded text-sm">Surge in demand for online learning</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-teal-400 mb-2">Customer Feedback</h4>
+                        <p class="bg-gray-700 p-2 rounded text-sm">Users love the AI-driven quizzes!</p>
+                        <p class="bg-gray-700 p-2 rounded text-sm">Request for more mobile features</p>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <h4 class="text-sm text-teal-400 mb-2">Competitor Moves</h4>
+                    <p class="bg-gray-700 p-2 rounded text-sm">TechTrend reduces pricing by 10%</p>
+                    <p class="bg-gray-700 p-2 rounded text-sm">HealthInnovate expands to Asia</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h4 class="text-sm text-teal-400 mb-2">Sales & Revenue</h4>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance & Reports Section -->
+        <section id="reports" class="max-w-5xl mx-auto mb-12">
+            <h2 class="text-2xl font-semibold text-teal-400 mb-4">Performance & Reports</h2>
+            <div class="bg-gray-800 glass-effect p-6 rounded-lg glow">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <h4 class="text-sm text-teal-400 mb-2">Weekly Report</h4>
+                        <p class="text-sm">Your startup grew revenue by 12% this week, but burn rate increased due to higher marketing spend.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-teal-400 mb-2">SWOT Analysis</h4>
+                        <p class="text-sm">Strength: Strong AI features</p>
+                        <p class="text-sm">Weakness: High customer acquisition cost</p>
+                        <p class="text-sm">Opportunity: Expand to corporate training</p>
+                        <p class="text-sm">Threat: New competitors entering market</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h4 class="text-sm text-teal-400">Revenue</h4>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h4 class="text-sm text-teal-400">CAC</h4>
+                        <canvas id="cacChart"></canvas>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h4 class="text-sm text-teal-400">LTV</h4>
+                        <canvas id="ltvChart"></canvas>
+                    </div>
+                </div>
+                <button class="w-full bg-teal-500 hover:bg-teal-600 p-2 rounded-lg tooltip" data-tooltip="Explore alternate decisions">What-if Simulation</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- AI Mentor Chatbot -->
+    <div class="chatbot-toggle" onclick="toggleChatbot()">💬</div>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            AI Mentor
+            <button onclick="toggleChatbot()" class="text-white">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message ai"><img src="https://via.placeholder.com/24" alt="AI Mentor">Greetings, I am Promal Professionalst, your startup mentor. How may I assist you?</div>
+        </div>
+        <div class="typing-indicator" id="typingIndicator">Typing...</div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Ask for advice..." aria-label="Ask for startup advice">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Chart.js and Chatbot Scripts -->
+    <script>
+        // Gemini API key
+        const GEMINI_API_KEY = 'AIzaSyAuP5-6yC6qI_j8idhhcxaHrdUqRemejgw';
+
+        // Chart.js Configurations
+        const competitorChart = new Chart(document.getElementById('competitorChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Your Startup', 'TechTrend', 'HealthInnovate', 'EduGrow'],
+                datasets: [{
+                    label: 'Profit ($)',
+                    data: [12450, 25000, 22000, 18000],
+                    backgroundColor: ['#14B8A6', '#22C55E', '#F59E0B', '#EF4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const salesChart = new Chart(document.getElementById('salesChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: [500, 600, 750, 650, 900, 1000],
+                        borderColor: '#14B8A6',
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Revenue',
+                        data: [10000, 12000, 15000, 13000, 18000, 20000],
+                        borderColor: '#22C55E',
+                        fill: false,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const revenueChart = new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: [10000, 12000, 15000, 13000, 18000, 20000],
+                    borderColor: '#14B8A6',
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const cacChart = new Chart(document.getElementById('cacChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'CAC ($)',
+                    data: [200, 220, 250, 230, 210, 240],
+                    borderColor: '#EF4444',
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        const ltvChart = new Chart(document.getElementById('ltvChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'LTV ($)',
+                    data: [1000, 1100, 1200, 1150, 1300, 1400],
+                    borderColor: '#22C55E',
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Progress bar animation
+        setTimeout(() => {
+            document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+                bar.style.width = bar.style.width;
+            });
+        }, 1000);
+
+        // Chatbot functionality
+        const chatbotContainer = document.querySelector('.chatbot-container');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const chatInput = document.getElementById('chatInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        function toggleChatbot() {
+            chatbotContainer.classList.toggle('open');
+            if (chatbotContainer.classList.contains('open')) {
+                // Reset messages to show only the initial message
+                chatbotMessages.innerHTML = `
+                    <div class="message ai">
+                        <img src="https://via.placeholder.com/24" alt="AI Mentor">
+                        Greetings, I am Promal Professionalst, your startup mentor. How may I assist you?
+                    </div>
+                `;
+                chatInput.focus();
+            }
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.textContent = message;
+            chatbotMessages.appendChild(userMessage);
+            chatInput.value = '';
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            // Show typing indicator
+            typingIndicator.classList.add('active');
+
+            try {
+                const myDescription = 'This is a startup simulation platform where users can launch mock startups, choose markets, set pricing, and observe market dynamics.';
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `User_message: ${message}. Reply formally, concisely, and professionally as Promal Professionalst. Answer based on: ${myDescription} if required. Keep responses short and to the point.`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
+
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+
+                // Add AI response
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai';
+                aiMessage.innerHTML = `<img src="https://via.placeholder.com/24" alt="AI Mentor">${aiResponse}`;
+                chatbotMessages.appendChild(aiMessage);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            } catch (error) {
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai';
+                errorMessage.innerHTML = `<img src="https://via.placeholder.com/24" alt="AI Mentor">Apologies, an error occurred. Please verify your API key or try again.`;
+                chatbotMessages.appendChild(errorMessage);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                console.error('Chatbot error:', error);
+            }
+        }
+
+        // Handle Enter key for sending messages
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Close chatbot on click outside
+        document.querySelector('.chatbot-container').addEventListener('click', (e) => {
+            if (e.target.classList.contains('chatbot-container')) {
+                toggleChatbot();
+            }
+        });
+    </script>
+</body>
+</html>
