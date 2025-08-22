@@ -1,0 +1,78 @@
+Domain,Company,Revenue_FY (₹ Cr),Profit/Loss_FY (₹ Cr),Operating_Cashflow_FY (₹ Cr),Users (M),PMF,Burn/mo (₹ Cr),Base_Pricing (₹/mo),Premium_Pricing (₹/mo),Enterprise_Pricing (₹/mo),Data_Type
+Edtech,Byju's,5230,-1240,-580,42.3,4,75,2490,7460,18200,~assumed
+Edtech,Unacademy,2180,-930,-420,28.1,3,52,1980,5970,13280,~assumed
+Edtech,Vedantu,1560,-610,-240,14.8,3,38,1250,4180,9600,~assumed
+Edtech,UpGrad,2430,-710,-310,19.4,4,42,2890,7220,18400,~assumed
+Edtech,Toppr,890,-320,-150,11.7,3,21,890,2490,8920,~assumed
+Edtech,Doubtnut,670,-210,-80,8.2,2,18,590,1890,6250,~assumed
+Edtech,WhiteHat Jr,1430,-480,-200,15.6,3,29,1790,4980,12900,~assumed
+Fintech,Razorpay,3850,620,410,18.7,5,15,1990,5720,14800,~assumed
+Fintech,Paytm,7800,-1800,-920,45.1,4,92,249,890,3250,~assumed
+Fintech,PhonePe,5200,-920,-400,39.2,4,63,199,980,4180,~assumed
+Fintech,PolicyBazaar,3100,-430,-180,21.7,3,38,490,2180,9820,~assumed
+Fintech,Cred,2500,-740,-310,11.5,3,41,780,2890,11200,~assumed
+Fintech,Groww,1740,-290,-110,9.4,4,22,540,1980,7520,~assumed
+Fintech,Zerodha,5100,1120,720,14.9,5,12,890,2890,10400,~assumed
+Travel Tech,MakeMyTrip,4800,520,310,38.1,4,28,1290,3890,15400,~assumed
+Travel Tech,Yatra,2450,190,120,17.3,3,19,890,2180,8720,~assumed
+Travel Tech,ixigo,1580,60,40,12.9,3,15,590,1780,6390,~assumed
+Travel Tech,Cleartrip,2340,140,80,19.6,4,21,990,2580,9980,~assumed
+Travel Tech,TravelTriangle,820,-140,-60,6.4,2,12,390,1240,4680,~assumed
+Travel Tech,Oyo Rooms,7200,-1240,-860,48.9,3,94,1290,3890,14900,~assumed
+Travel Tech,Goibibo,3120,210,140,22.7,3,24,990,2890,11200,~assumed
+Healthcare,1mg,2180,-240,-110,14.9,3,26,490,1780,7220,~assumed
+Healthcare,PharmEasy,4870,-670,-340,31.6,3,58,780,2490,9860,~assumed
+Healthcare,Netmeds,1920,-380,-180,12.7,3,22,890,2180,9180,~assumed
+Healthcare,Practo,2640,-520,-250,15.1,4,34,1290,3890,12900,~assumed
+Healthcare,mfine,1180,-310,-140,8.9,2,17,690,1980,7420,~assumed
+Healthcare,Portea Medical,960,-180,-90,7.8,2,14,590,1780,6890,~assumed
+Healthcare,DocsApp,1340,-220,-100,9.2,3,18,790,2480,9180,~assumed
+Fashion,Myntra,5820,820,410,42.1,5,28,1290,3890,14900,~assumed
+Fashion,Ajio,2740,410,190,26.9,4,19,890,2890,11800,~assumed
+Fashion,Bewakoof,810,-130,-50,8.2,2,11,490,1780,5920,~assumed
+Fashion,Zivame,1290,180,90,9.8,3,14,690,1980,7560,~assumed
+Fashion,Faballey,620,-110,-40,5.9,2,9,390,1240,4890,~assumed
+Fashion,Limeroad,980,140,70,8.7,3,13,590,1740,6820,~assumed
+Fashion,Clovia,870,120,60,6.9,3,10,490,1580,5980,~assumed
+Beverages,Paper Boat,1140,160,80,7.2,3,12,190,780,3120,~assumed
+Beverages,RAW Pressery,890,-80,-40,6.1,2,10,290,890,3980,~assumed
+Beverages,Bira 91,1360,-190,-90,8.2,3,15,490,1890,6720,~assumed
+Beverages,Kingfisher,4420,920,510,31.9,5,6,1490,3980,16200,~assumed
+Beverages,Pepsi India,8200,1480,720,49.1,5,12,1890,4980,19800,~assumed
+Beverages,CocaCola India,9500,1980,890,55.7,5,15,2490,5980,24900,~assumed
+Beverages,Red Bull India,4130,740,320,22.4,4,8,1290,3890,15600,~assumed
+FMCG,Patanjali,15600,2100,1200,67.9,5,24,1890,4980,22400,~assumed
+FMCG,Amul,53000,7900,4200,112.5,5,15,1490,3980,18400,~assumed
+FMCG,Dabur,11800,2100,1180,53.2,5,12,1290,3890,16200,~assumed
+FMCG,ITC,62300,9500,4800,145.1,5,18,1590,4890,18900,~assumed
+FMCG,Haldiram's,9100,1280,690,44.9,5,14,1390,4180,15400,~assumed
+FMCG,Britannia,14600,2900,1520,61.8,5,16,1790,4980,19800,~assumed
+FMCG,Nestle India,16700,3200,1710,72.3,5,19,1990,5980,21400,~assumed
+Wearable Electronics,Noise,2180,380,190,13.2,4,11,890,2890,11400,~assumed
+Wearable Electronics,boAt,3920,720,310,19.8,4,14,990,3180,12400,~assumed
+Wearable Electronics,Fire-Boltt,1580,290,120,10.4,3,9,790,2480,9980,~assumed
+Wearable Electronics,Fastrack,2640,480,210,14.6,4,12,890,2890,11200,~assumed
+Wearable Electronics,Titan,11800,3200,1600,37.9,5,21,1990,5980,22400,~assumed
+Wearable Electronics,Pebble,740,-90,-40,4.9,2,6,490,1580,6890,~assumed
+Wearable Electronics,Tagg,890,120,60,6.1,3,8,590,1890,7820,~assumed
+Cosmetics,Nykaa,4120,820,390,28.1,5,14,790,2480,9980,~assumed
+Cosmetics,Sugar Cosmetics,1290,-190,-80,11.2,3,10,590,1780,6820,~assumed
+Cosmetics,Mamaearth,2140,420,210,16.9,4,13,690,1980,7420,~assumed
+Cosmetics,MyGlamm,980,-120,-60,8.7,3,8,490,1580,6320,~assumed
+Cosmetics,Plum,640,-80,-30,6.1,2,6,390,1240,5180,~assumed
+Cosmetics,Lotus Herbals,780,90,40,7.4,3,7,490,1580,6480,~assumed
+Cosmetics,Colorbar,870,110,50,8.2,3,8,590,1890,7520,~assumed
+Skincare,WOW Skin Science,2180,320,150,15.1,4,12,690,1980,7960,~assumed
+Skincare,Biotique,1140,180,90,9.6,3,8,490,1580,6520,~assumed
+Skincare,Forest Essentials,1540,260,120,12.8,4,10,690,1980,7980,~assumed
+Skincare,Kama Ayurveda,1280,220,100,10.9,3,9,590,1780,7620,~assumed
+Skincare,MCaffeine,870,130,60,8.1,3,7,490,1580,6920,~assumed
+Skincare,Nivea India,3270,720,340,18.2,4,14,990,2890,11200,~assumed
+Skincare,Himalaya,5620,1180,520,24.7,5,18,1290,3890,14900,~assumed
+Food Tech,Zomato,8200,-1240,-580,54.1,4,84,249,890,3890,~assumed
+Food Tech,Swiggy,7400,-1390,-620,48.7,4,78,199,890,4180,~assumed
+Food Tech,FreshMenu,1180,-190,-90,9.4,3,16,490,1580,6720,~assumed
+Food Tech,Rebel Foods,2360,-420,-210,12.9,3,22,690,1980,7890,~assumed
+Food Tech,Box8,820,-140,-60,7.1,2,11,390,1240,5920,~assumed
+Food Tech,EatFit,970,-120,-50,6.7,2,10,490,1580,6480,~assumed
+Food Tech,Faasos,1490,-230,-110,9.3,3,18,590,1890,7860,~assumed
